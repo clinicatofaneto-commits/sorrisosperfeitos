@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thiago Tofaneto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800;900&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f6f4ef;
+    --gold: #e2b05a;      /* destaque sobre preto */
+    --gold-deep: #a8741f; /* destaque sobre branco */
+    --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+  body { display: grid; place-items: center; cursor: pointer; }
+
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1920px; height: 1080px;
+    transform-origin: 0 0;
+    overflow: hidden;
+    background: var(--black);
+    font-family: var(--sans);
+  }
+  .scene { position: absolute; inset: 0; }
+  .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+  .mask { display: block; overflow: hidden; padding-bottom: .08em; }
+  .mask > span { display: inline-block; will-change: transform; }
+
+  /* ---------- CENA 1 — linha → pílula → "O" ---------- */
+  #s1 { background: var(--black); color: var(--white); }
+  .name-row {
+    position: absolute; left: 0; right: 0; top: 260px;
+    display: flex; justify-content: center; align-items: center;
+    height: 230px;
+  }
+  .thiag { overflow: hidden; width: 0; white-space: nowrap; }
+  .thiag span {
+    display: inline-block;
+    font-weight: 900; font-size: 250px; line-height: 1; letter-spacing: -0.045em;
+  }
+  #pill {
+    flex: none; width: 0; height: 8px;
+    border-radius: 999px;
+    background: var(--white);
+    border: 0 solid var(--white);
+    margin-left: 0;
+  }
+  .surname {
+    position: absolute; left: 0; right: 0; top: 500px;
+    text-align: center; font-size: 230px; line-height: 1; color: var(--gold);
+    clip-path: inset(0 100% 0 0);
+  }
+  .role {
+    position: absolute; left: 0; right: 0; top: 820px;
+    display: flex; justify-content: center; align-items: center; gap: 28px;
+    font-weight: 700; font-size: 30px; letter-spacing: .5em; text-indent: .5em;
+  }
+  .role i { display: block; width: 120px; height: 2px; background: currentColor; transform: scaleX(0); }
+  .role b { opacity: 0; }
+
+  /* ---------- CENA 2 — foto em círculo ---------- */
+  #s2 { background: var(--white); color: var(--black); clip-path: circle(0px at 50% 50%); }
+  .portrait {
+    position: absolute; left: 560px; top: 540px;
+    width: 0; height: 0;
+  }
+  .ring {
+    position: absolute; left: -390px; top: -390px; width: 780px; height: 780px;
+  }
+  .ring text { font-family: var(--sans); font-weight: 800; font-size: 27px; fill: var(--black); }
+  .ring .dot { fill: var(--gold-deep); }
+  .photo {
+    position: absolute; left: -275px; top: -275px; width: 550px; height: 550px;
+    border-radius: 50%; overflow: hidden; background: #111;
+  }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-outline {
+    position: absolute; left: -300px; top: -300px; width: 600px; height: 600px;
+    border-radius: 50%; border: 2px solid var(--black);
+  }
+  .s2-copy { position: absolute; left: 1010px; top: 300px; width: 840px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 14px;
+    border: 2px solid currentColor; border-radius: 999px;
+    padding: 10px 26px 10px 18px;
+    font-weight: 800; font-size: 26px; letter-spacing: .22em;
+  }
+  .tag::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--gold-deep); }
+  .s2-copy h2 { margin-top: 40px; font-weight: 900; font-size: 104px; line-height: .98; letter-spacing: -0.04em; }
+  .s2-copy h2 .serif { color: var(--gold-deep); font-size: 150px; line-height: .9; }
+  .underline { height: 4px; width: 420px; background: var(--gold-deep); margin-top: 18px; transform-origin: left; transform: scaleX(0); }
+
+  /* ---------- CENA 3 — CTA ---------- */
+  #s3 { background: var(--black); color: var(--white); clip-path: inset(0 100% 0 0); }
+  #wipe-bar {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 70px;
+    background: var(--gold); transform: translateX(-100px); z-index: 5;
+  }
+  .s3-copy { position: absolute; left: 150px; top: 200px; }
+  .s3-copy h1 { font-weight: 900; font-size: 168px; line-height: .95; letter-spacing: -0.045em; }
+  .s3-copy h1 .serif { color: var(--gold); font-size: 230px; line-height: .86; letter-spacing: -0.02em; }
+  .counter {
+    margin-top: 34px; display: flex; align-items: baseline; gap: 22px;
+    font-weight: 700; font-size: 34px; letter-spacing: .02em; opacity: 0;
+  }
+  .counter .num { font-family: var(--mono); font-size: 64px; color: var(--gold); min-width: 4.2ch; }
+
+  .card {
+    position: absolute; left: 1180px; top: 330px; width: 600px;
+    padding: 46px; border-radius: 36px;
+    background: #151515; border: 1px solid #2a2a2a;
+    opacity: 0;
+  }
+  .card-head { display: flex; align-items: center; gap: 26px; }
+  .avatar {
+    width: 128px; height: 128px; border-radius: 50%; padding: 5px;
+    background: conic-gradient(from 200deg, var(--gold), #fff3d6, var(--gold-deep), var(--gold));
+    flex: none;
+  }
+  .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #151515; display: block; }
+  .handle { font-weight: 800; font-size: 38px; letter-spacing: -0.02em; }
+  .sub { margin-top: 6px; font-weight: 500; font-size: 24px; color: #9a9a9a; }
+  .follow {
+    position: relative; overflow: hidden;
+    margin-top: 40px; width: 100%; height: 96px; border-radius: 22px;
+    background: var(--gold); color: var(--black);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 36px; letter-spacing: -0.01em;
+    border: 2px solid var(--gold);
+  }
+  .follow .lbl { position: absolute; inset: 0; display: grid; place-items: center; }
+  .follow .lbl-done { color: var(--white); opacity: 0; }
+  .ripple {
+    position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px;
+    border-radius: 50%; background: rgba(255,255,255,.55); transform: scale(0);
+  }
+  .plus {
+    position: absolute; right: 40px; top: -30px;
+    font-family: var(--mono); font-size: 34px; color: var(--gold); opacity: 0;
+  }
+  #cursor {
+    position: absolute; left: 0; top: 0; width: 64px; height: 64px; z-index: 10;
+    transform: translate(1900px, 1150px);
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.5));
+  }
+
+  /* ---------- HUD (inverte sozinho sobre preto/branco) ---------- */
+  .hud {
+    position: absolute; inset: 0; z-index: 20; pointer-events: none;
+    color: #fff; mix-blend-mode: difference;
+    font-family: var(--mono); font-size: 22px; letter-spacing: .08em;
+  }
+  .hud .tl { position: absolute; left: 70px; top: 56px; }
+  .hud .tr { position: absolute; right: 70px; top: 56px; }
+  .hud .bl { position: absolute; left: 70px; bottom: 56px; }
+  .hud .br { position: absolute; right: 70px; bottom: 56px; }
+  .hud .bar { position: absolute; left: 70px; right: 70px; bottom: 40px; height: 2px; background: rgba(255,255,255,.25); }
+  .hud .bar i { display: block; height: 100%; width: 100%; background: #fff; transform-origin: left; transform: scaleX(0); }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- CENA 1 -->
+  <section class="scene" id="s1">
+    <div class="name-row">
+      <div class="thiag"><span>THIAG</span></div>
+      <div id="pill"></div>
+    </div>
+    <div class="surname serif">Tofaneto</div>
+    <div class="role"><i></i><b>CEO</b><i></i></div>
+  </section>
+
+  <!-- CENA 2 -->
+  <section class="scene" id="s2">
+    <div class="portrait">
+      <svg class="ring" viewBox="0 0 780 780" aria-hidden="true">
+        <defs><path id="circ" d="M390,390 m-345,0 a345,345 0 1,1 690,0 a345,345 0 1,1 -690,0"/></defs>
+        <text><textPath href="#circ" textLength="2160" lengthAdjust="spacing">@THIAGOTOFANETO <tspan class="dot">✦</tspan> CEO <tspan class="dot">✦</tspan> LENTE DE CONTATO DENTAL <tspan class="dot">✦</tspan> SORRISOS PERFEITOS <tspan class="dot">✦</tspan></textPath></text>
+      </svg>
+      <div class="photo-outline"></div>
+      <div class="photo"><img src="assets/thiago.jpg" alt="Thiago Tofaneto"></div>
+    </div>
+    <div class="s2-copy">
+      <div class="tag">CEO</div>
+      <h2>
+        <span class="mask"><span>Especialista em</span></span>
+        <span class="mask"><span>Lente de Contato</span></span>
+        <span class="mask"><span class="serif">Dental.</span></span>
+      </h2>
+      <div class="underline"></div>
+    </div>
+  </section>
+
+  <!-- CENA 3 -->
+  <section class="scene" id="s3">
+    <div class="s3-copy">
+      <h1>
+        <span class="mask"><span>Transformo</span></span>
+        <span class="mask"><span>Sorrisos,</span></span>
+        <span class="mask"><span class="serif">Perfeitos!</span></span>
+      </h1>
+      <div class="counter"><span class="num">0%</span><span>lente de contato dental</span></div>
+    </div>
+
+    <div class="card">
+      <div class="plus">+1</div>
+      <div class="card-head">
+        <div class="avatar"><img src="assets/thiago.jpg" alt=""></div>
+        <div>
+          <div class="handle">@thiagotofaneto</div>
+          <div class="sub">Thiago Tofaneto · CEO</div>
+        </div>
+      </div>
+      <div class="follow">
+        <span class="ripple"></span>
+        <span class="lbl lbl-go">Seguir</span>
+        <span class="lbl lbl-done">Seguindo ✓</span>
+      </div>
+    </div>
+
+    <svg id="cursor" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M12 6 L12 50 L23 40 L31 58 L39 54 L31 37 L46 37 Z" fill="#fff" stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"/>
+    </svg>
+  </section>
+  <div id="wipe-bar"></div>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="tl">THIAGO TOFANETO</div>
+    <div class="tr"><span id="sceneNo">01</span> / 03</div>
+    <div class="bl">@THIAGOTOFANETO</div>
+    <div class="br">00:<span id="clock">00</span></div>
+    <div class="bar"><i id="progress"></i></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+  // Valor final do contador da cena 3 (troque se quiser outro número).
+  const COUNTER_TARGET = 100;
+  const DURATION = 15;
+
+  const stage = document.getElementById("stage");
+  function fit() {
+    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+    stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
+  }
+  addEventListener("resize", fit); fit();
+
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => document.querySelectorAll(s);
+
+  function build() {
+    // Medidas para a pílula virar o "O" e para o iris sair dela.
+    const thiag = $(".thiag");
+    const W = thiag.scrollWidth;
+    const O_W = 168, O_H = 196, O_GAP = 6;
+    const pillCenterX = 960 + (W + O_GAP + O_W) / 2 - O_W / 2;
+    const pillCenterY = 260 + 230 / 2;
+
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1, defaults: { ease: "expo.out" } });
+    const hold = { t: 0 };
+
+    // ---------------- CENA 1 ----------------
+    tl.set("#s2", { clipPath: `circle(0px at ${pillCenterX}px ${pillCenterY}px)` }, 0)
+      .fromTo("#pill", { width: 0, height: 8, backgroundColor: "rgba(246,244,239,1)", borderWidth: 0 },
+                       { width: 820, duration: .8 }, .2)
+      .to("#pill", { width: O_W, height: O_H, duration: .8, ease: "expo.inOut" }, 1.0)
+      .to("#pill", { backgroundColor: "rgba(246,244,239,0)", borderWidth: 30, duration: .5, ease: "power2.inOut" }, 1.3)
+      .fromTo(".thiag", { width: 0 }, { width: W, duration: .9, ease: "expo.inOut" }, 1.75)
+      .fromTo("#pill", { marginLeft: 0 }, { marginLeft: O_GAP, duration: .9, ease: "expo.inOut" }, 1.75)
+      .fromTo(".thiag span", { xPercent: 30 }, { xPercent: 0, duration: 1.1 }, 1.75)
+      .fromTo(".surname", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1, ease: "expo.inOut" }, 2.35)
+      .fromTo(".role i", { scaleX: 0 }, { scaleX: 1, duration: .8 }, 2.9)
+      .fromTo(".role b", { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".5em", duration: .9 }, 2.95)
+      .to("#pill", { scale: 1.12, duration: .35, ease: "power2.out" }, 3.75)
+
+    // ------- IRIS → CENA 2 (abre a partir do "O") -------
+      .to("#s2", { clipPath: `circle(2300px at ${pillCenterX}px ${pillCenterY}px)`, duration: 1.05, ease: "power3.inOut" }, 3.9)
+      .call(() => $("#sceneNo").textContent = "02", null, 4.4)
+
+    // ---------------- CENA 2 ----------------
+      .fromTo(".photo", { scale: .2, rotation: -25 }, { scale: 1, rotation: 0, duration: 1.2 }, 4.35)
+      .fromTo(".photo img", { scale: 1.5 }, { scale: 1, duration: 1.8 }, 4.35)
+      .fromTo(".photo-outline", { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2 }, 4.55)
+      .fromTo(".ring", { opacity: 0, scale: .85 }, { opacity: 1, scale: 1, duration: 1 }, 4.7)
+      .fromTo(".ring", { rotation: -40 }, { rotation: 140, duration: 5.4, ease: "none" }, 4.3)
+      .fromTo(".s2-copy .tag", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .8 }, 4.9)
+      .fromTo(".s2-copy .mask > span", { yPercent: 115 }, { yPercent: 0, duration: 1, stagger: .2 }, 5.05)
+      .fromTo(".underline", { scaleX: 0 }, { scaleX: 1, duration: .9, ease: "expo.inOut" }, 6.0)
+
+    // ------- WIPE → CENA 3 -------
+      .fromTo("#wipe-bar", { x: -100 }, { x: 1940, duration: .95, ease: "power3.inOut" }, 8.75)
+      .fromTo("#s3", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: .95, ease: "power3.inOut" }, 8.78)
+      .call(() => $("#sceneNo").textContent = "03", null, 9.2)
+
+    // ---------------- CENA 3 ----------------
+      .fromTo("#s3 .mask > span", { yPercent: 115 }, { yPercent: 0, duration: .9, stagger: .28 }, 9.45)
+      .fromTo("#s3 .serif", { scale: 1.25, transformOrigin: "0% 80%" }, { scale: 1, duration: 1.1 }, 10.0)
+      .to(".counter", { opacity: 1, duration: .5, ease: "power2.out" }, 10.5)
+      .fromTo(hold, { t: 0 }, {
+          t: COUNTER_TARGET, duration: 1.6, ease: "power2.out",
+          onUpdate: () => $(".counter .num").textContent = Math.round(hold.t) + "%"
+        }, 10.5)
+      .fromTo(".card", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 1 }, 11.2)
+      // cursor até o botão
+      .fromTo("#cursor", { x: 1900, y: 1150 }, { x: 1482, y: 612, duration: 1.1, ease: "power3.inOut" }, 11.9)
+      // clique
+      .to("#cursor", { scale: .82, duration: .12, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "20% 10%" }, 13.05)
+      .to(".follow", { scale: .95, duration: .12, ease: "power2.in", yoyo: true, repeat: 1 }, 13.05)
+      .fromTo(".ripple", { scale: 0, opacity: 1 }, { scale: 18, opacity: 0, duration: .8, ease: "power2.out" }, 13.1)
+      .to(".follow", { backgroundColor: "rgba(226,176,90,0)", duration: .35, ease: "power2.out" }, 13.2)
+      .to(".lbl-go", { yPercent: -100, opacity: 0, duration: .35, ease: "power2.in" }, 13.2)
+      .fromTo(".lbl-done", { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .5 }, 13.3)
+      .fromTo(".plus", { opacity: 0, y: 20 }, { opacity: 1, y: -30, duration: .6, ease: "power2.out" }, 13.3)
+      .to(".plus", { opacity: 0, y: -60, duration: .5, ease: "power2.in" }, 14.0)
+      .to("#cursor", { x: 1600, y: 700, duration: .9, ease: "power2.inOut" }, 13.7)
+      .to({}, { duration: .01 }, DURATION - .01);
+
+    // HUD: contador de tempo crescente + barra de progresso
+    tl.eventCallback("onUpdate", () => {
+      const t = tl.time();
+      $("#clock").textContent = String(Math.min(DURATION, Math.floor(t))).padStart(2, "0");
+      gsap.set("#progress", { scaleX: t / DURATION });
+      if (t < 4.4) $("#sceneNo").textContent = "01";
+      else if (t < 9.2) $("#sceneNo").textContent = "02";
+      else $("#sceneNo").textContent = "03";
+    });
+
+    // ?t=7.5 congela num instante (útil para prévias/gravação); clique reinicia.
+    const q = new URLSearchParams(location.search).get("t");
+    if (q !== null) { tl.pause(); tl.seek(parseFloat(q), false); }
+    document.body.addEventListener("click", () => tl.restart());
+    window.tl = tl;
+  }
+
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(build);
+</script>
+</body>
+</html>
