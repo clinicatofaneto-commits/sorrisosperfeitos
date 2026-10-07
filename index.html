@@ -4,20 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thiago Tofaneto</title>
+<link rel="stylesheet" href="assets/fonts.css">
 <style>
-  @font-face {
-    font-family: "Inter Tight"; font-style: normal; font-weight: 500 900; font-display: block;
-    src: url("assets/fonts/inter-tight.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Instrument Serif"; font-style: italic; font-weight: 400; font-display: block;
-    src: url("assets/fonts/instrument-serif-italic.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "JetBrains Mono"; font-style: normal; font-weight: 500; font-display: block;
-    src: url("assets/fonts/jetbrains-mono.woff2") format("woff2");
-  }
-
   :root {
     --black: #0a0a0a;
     --white: #f5f5f5;
@@ -434,6 +422,7 @@
     document.body.addEventListener("click", () => { if (!RENDER) tl.restart(); });
     stage.style.visibility = "visible";
     window.tl = tl;
+    window.renderInfo = { width: 1920, height: 1080, duration: DURATION, alpha: false };
     window.renderReady = true;
   }
 

@@ -1,0 +1,13 @@
+{
+  "name": "sorrisosperfeitos-video",
+  "private": true,
+  "description": "Motion e montagem dos vídeos do Dr. Thiago Tofaneto",
+  "scripts": {
+    "vinheta": "node scripts/render.js",
+    "titulos": "node scripts/render-titulos.js",
+    "legendas": "node scripts/render-legendas.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

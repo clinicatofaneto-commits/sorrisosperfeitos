@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legendas Reels</title>
+<link rel="stylesheet" href="../assets/fonts.css">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f5f5;
+    --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+  .render, .render body { background: transparent; }
+  body { cursor: pointer; }
+
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1080px; height: 1920px;
+    transform-origin: 0 0;
+    overflow: hidden;
+    font-family: var(--sans);
+    perspective: 1400px;
+    visibility: hidden;
+  }
+  /* Só na prévia: imagem lavada, imitando o vídeo em log. */
+  #bg { position: absolute; inset: 0; display: none; }
+  .preview #bg { display: block; }
+  #bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.4) contrast(.7) brightness(1.08); }
+
+  /* Um grupo = o trecho de 1 a 3 palavras que aparece de cada vez. */
+  .grupo {
+    position: absolute; left: 50%; top: 1160px;
+    white-space: nowrap;
+    font-weight: 900; font-size: 104px; line-height: 1.1; letter-spacing: -0.03em;
+    filter: drop-shadow(0 6px 20px rgba(0, 0, 0, .5));
+    visibility: hidden;
+  }
+  /* O bloco branco corre por baixo da palavra falada; o "difference" deixa a palavra preta. */
+  .bloco { position: absolute; left: 0; top: 0; height: 0; width: 0; background: var(--white); }
+  .cw { position: relative; color: #fff; mix-blend-mode: difference; }
+  .cw.serif { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 1.22em; letter-spacing: -0.01em; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"><img src="../assets/thiago.jpg" alt=""></div>
+</div>
+
+<script src="../assets/vendor/gsap.min.js"></script>
+<script src="dados/legendas.js"></script>
+<script>
+  // ?id=R01   → qual Reel (padrão: o primeiro de dados/legendas.js)
+  // ?render   → timeline parada, controlada quadro a quadro pelos scripts de render
+  // ?t=2.4    → congela num instante (prévia)
+  const params = new URLSearchParams(location.search);
+  const RENDER = params.has("render");
+  const LEGENDAS = window.LEGENDAS || {};
+  const id = params.get("id") || Object.keys(LEGENDAS)[0];
+  const palavras = LEGENDAS[id] || [];
+  document.documentElement.classList.add(RENDER ? "render" : "preview");
+  document.title = `${id} · Legendas Reels`;
+
+  const MAX_PALAVRAS = 3, MAX_LETRAS = 16, PAUSA = .35, LARGURA = 900;
+
+  const stage = document.getElementById("stage");
+  function fit() {
+    const s = Math.min(innerWidth / 1080, innerHeight / 1920);
+    stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
+  }
+  addEventListener("resize", fit); fit();
+
+  // Agrupa as palavras: no máximo 3 por vez, quebrando em pontuação e em pausas da fala.
+  function agrupar(lista) {
+    const grupos = [];
+    let atual = [];
+    lista.forEach((w, i) => {
+      const letras = atual.reduce((n, x) => n + x.p.length + 1, 0) + w.p.length;
+      if (atual.length && (atual.length >= MAX_PALAVRAS || letras > MAX_LETRAS || w.i - lista[i - 1].f > PAUSA)) {
+        grupos.push(atual); atual = [];
+      }
+      atual.push(w);
+      if (/[.!?,;:]$/.test(w.p.replace(/\*/g, ""))) { grupos.push(atual); atual = []; }
+    });
+    if (atual.length) grupos.push(atual);
+    return grupos;
+  }
+
+  function build() {
+    const tl = gsap.timeline({ paused: RENDER, repeat: RENDER ? 0 : -1, repeatDelay: .8 });
+    const grupos = agrupar(palavras);
+
+    grupos.forEach((g, gi) => {
+      const el = document.createElement("div");
+      el.className = "grupo";
+      el.innerHTML = '<i class="bloco"></i>';
+      const spans = g.map((w, i) => {
+        if (i) el.append(" ");
+        const s = document.createElement("span");
+        const serif = /^\*.+\*\W*$/.test(w.p);
+        s.className = serif ? "cw serif" : "cw";
+        s.textContent = w.p.replace(/\*/g, "");
+        el.append(s);
+        return s;
+      });
+      stage.append(el);
+      if (el.offsetWidth > LARGURA) el.style.fontSize = 104 * LARGURA / el.offsetWidth + "px";
+
+      const bloco = el.querySelector(".bloco");
+      const pad = 0.12 * parseFloat(getComputedStyle(el).fontSize);
+      const inicio = g[0].i;
+      const proximo = grupos[gi + 1] ? grupos[gi + 1][0].i : Infinity;
+      const fim = Math.min(proximo, g[g.length - 1].f + .45);
+
+      gsap.set(el, { xPercent: -50, transformOrigin: "50% 100%" });
+      tl.set(el, { visibility: "visible" }, inicio)
+        .fromTo(el, { rotationX: -70, y: 40, opacity: 0 }, { rotationX: 0, y: 0, opacity: 1, duration: .22, ease: "back.out(1.6)", immediateRender: false }, inicio)
+        .set(el, { visibility: "hidden" }, fim);
+
+      // O bloco salta para cada palavra no instante em que ela é falada.
+      g.forEach((w, i) => {
+        const s = spans[i];
+        const h = s.offsetHeight;
+        const alvo = { x: s.offsetLeft - pad, width: s.offsetWidth + 2 * pad, y: s.offsetTop + .1 * h, height: .86 * h };
+        if (i === 0) tl.set(bloco, alvo, inicio);
+        else tl.to(bloco, { ...alvo, duration: .1, ease: "power2.out" }, w.i);
+      });
+    });
+
+    const duracao = palavras.length ? palavras[palavras.length - 1].f + .5 : 1;
+    tl.to({}, { duration: .01 }, duracao - .01);
+
+    const q = params.get("t");
+    if (q !== null) { tl.pause(); tl.seek(parseFloat(q), false); }
+    document.body.addEventListener("click", () => { if (!RENDER) tl.restart(); });
+    stage.style.visibility = "visible";
+    window.tl = tl;
+    window.renderInfo = { width: 1080, height: 1920, duration: duracao, alpha: true };
+    window.renderReady = true;
+  }
+
+  Promise.all([
+    document.fonts.load('900 100px "Inter Tight"'),
+    document.fonts.load('italic 100px "Instrument Serif"'),
+  ]).then(() => document.fonts.ready).then(build);
+</script>
+</body>
+</html>

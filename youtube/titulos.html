@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Títulos 3D</title>
+<link rel="stylesheet" href="../assets/fonts.css">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f5f5;
+    --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+  .render, .render body { background: transparent; }
+  body { cursor: pointer; }
+
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1920px; height: 1080px;
+    transform-origin: 0 0;
+    overflow: hidden;
+    font-family: var(--sans);
+    perspective: 1800px;
+    visibility: hidden;
+  }
+  .pagina #stage { background: var(--white); color: var(--black); }
+  .pagina.fundo-preto #stage { background: var(--black); color: var(--white); }
+  .overlay #stage { background: transparent; color: var(--white); }
+
+  /* Só na prévia do overlay: imagem lavada, imitando o vídeo em log. */
+  #bg { position: absolute; inset: 0; display: none; }
+  .overlay.preview #bg { display: block; }
+  #bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.4) contrast(.7) brightness(1.08); }
+
+  .cam {
+    position: absolute; display: inline-block;
+    font-weight: 900; line-height: .98; letter-spacing: -0.04em;
+  }
+  .linha { white-space: nowrap; }
+  .pagina .cam, .lado-centro .cam { left: 50%; top: 50%; text-align: center; }
+  .pagina .cam { filter: drop-shadow(0 22px 34px rgba(0, 0, 0, .12)); }
+  .pagina.fundo-preto .cam { filter: none; }
+  .overlay .cam { filter: drop-shadow(0 6px 22px rgba(0, 0, 0, .45)); }
+  .lado-esquerda .cam { left: 140px; top: 50%; text-align: left; }
+  .lado-direita .cam { right: 140px; top: 50%; text-align: right; }
+  .lado-baixo .cam { left: 50%; bottom: 140px; text-align: center; }
+
+  .w { display: inline-block; }
+  .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+
+  /* Palavra em itálico dentro de um bloco invertido (mesmo recurso do vídeo de apresentação) */
+  .hl {
+    position: relative;
+    padding: .02em .17em .1em .13em;
+    font-size: 1.3em; line-height: .92;
+    clip-path: inset(0);
+  }
+  .hl-bg { position: absolute; inset: 0; display: block; transform-origin: 0 50%; }
+  .hl-txt { position: relative; display: inline-block; }
+  .hl--light .hl-bg { background: var(--white); }
+  .hl--light .hl-txt { color: var(--black); }
+  .hl--dark .hl-bg { background: var(--black); }
+  .hl--dark .hl-txt { color: var(--white); }
+
+  /* HUD da página (inverte sozinho no fundo branco ou preto) */
+  .hud {
+    position: absolute; inset: 0; pointer-events: none; display: none;
+    color: #fff; mix-blend-mode: difference;
+    font-family: var(--mono); font-size: 22px; letter-spacing: .08em;
+  }
+  .pagina .hud { display: block; }
+  .hud .tl { position: absolute; left: 70px; top: 56px; }
+  .hud .bl { position: absolute; left: 70px; bottom: 56px; }
+  .hud .bar { position: absolute; left: 70px; right: 70px; bottom: 40px; height: 2px; background: rgba(255, 255, 255, .25); }
+  .hud .bar i { display: block; height: 100%; background: #fff; transform-origin: left; transform: scaleX(0); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"><img src="../assets/thiago.jpg" alt=""></div>
+  <div class="cam"></div>
+  <div class="hud">
+    <div class="tl">THIAGO TOFANETO</div>
+    <div class="bl">@THIAGOTOFANETO</div>
+    <div class="bar"><i id="progress"></i></div>
+  </div>
+</div>
+
+<script src="../assets/vendor/gsap.min.js"></script>
+<script src="dados/frases.js"></script>
+<script>
+  // ?id=T01   → qual título da lista (padrão: o primeiro)
+  // ?render   → timeline parada, controlada quadro a quadro pelos scripts de render
+  // ?t=1.2    → congela num instante (prévia)
+  const params = new URLSearchParams(location.search);
+  const RENDER = params.has("render");
+  const FRASES = window.FRASES || [];
+  const f = FRASES.find((x) => x.id === params.get("id")) || FRASES[0];
+
+  const tipo = f.tipo === "overlay" ? "overlay" : "pagina";
+  const lado = f.lado || "esquerda";
+  const dur = Number(f.duracao) || 3.5;
+  const saida = f.saida ?? tipo === "overlay";
+
+  const root = document.documentElement;
+  root.classList.add(tipo);
+  if (tipo === "pagina" && f.fundo === "preto") root.classList.add("fundo-preto");
+  if (tipo === "overlay") root.classList.add(`lado-${lado}`);
+  root.classList.add(RENDER ? "render" : "preview");
+  document.title = `${f.id} · Títulos 3D`;
+
+  const stage = document.getElementById("stage");
+  function fit() {
+    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+    stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
+  }
+  addEventListener("resize", fit); fit();
+
+  const cam = document.querySelector(".cam");
+  const hlClass = tipo === "pagina" && f.fundo !== "preto" ? "hl--dark" : "hl--light";
+
+  // "Um sorriso\nnão é *cópia*." → linhas de palavras; *...* vira bloco invertido
+  for (const texto of f.texto.split("\n")) {
+    const linha = document.createElement("div");
+    linha.className = "linha";
+    for (const m of texto.matchAll(/\*([^*]+)\*(\S*)|(\S+)/g)) {
+      if (linha.childNodes.length) linha.append(" ");
+      const w = document.createElement("span");
+      if (m[3] !== undefined) {
+        w.className = "w";
+        w.textContent = m[3];
+      } else {
+        w.className = `w hl ${hlClass}`;
+        w.innerHTML = '<i class="hl-bg"></i><span class="hl-txt serif"></span>';
+        w.querySelector(".hl-txt").textContent = m[1] + m[2];
+      }
+      linha.append(w);
+    }
+    cam.append(linha);
+  }
+
+  function build() {
+    // Tamanho do texto: parte do tamanho base e encolhe até caber na área do layout.
+    const base = tipo === "pagina" ? 172 : lado === "baixo" ? 88 : 112;
+    const maxW = tipo === "pagina" || lado === "centro" || lado === "baixo" ? 1640 : 1100;
+    const maxH = tipo === "pagina" ? 760 : 620;
+    cam.style.fontSize = base + "px";
+    cam.style.fontSize = base * Math.min(1, maxW / cam.offsetWidth, maxH / cam.offsetHeight) + "px";
+
+    const centrado = tipo === "pagina" || lado === "centro";
+    gsap.set(cam, {
+      xPercent: centrado || lado === "baixo" ? -50 : 0,
+      yPercent: lado === "baixo" && tipo === "overlay" ? 0 : -50,
+      transformOrigin: lado === "direita" && tipo === "overlay" ? "100% 50%" : lado === "esquerda" && tipo === "overlay" ? "0% 50%" : "50% 50%",
+    });
+
+    const tl = gsap.timeline({ paused: RENDER, repeat: RENDER ? 0 : -1, repeatDelay: .8 });
+    const words = gsap.utils.toArray(".w");
+    const step = Math.min(.11, 1.1 / words.length);
+    const t0 = tipo === "pagina" ? .12 : .05;
+
+    // Câmera: o bloco de texto gira devagar no espaço durante todo o título.
+    const giro = tipo === "pagina" ? [-9, 7] : lado === "esquerda" ? [16, 7] : lado === "direita" ? [-16, -7] : [-6, 5];
+    tl.fromTo(cam, { rotationY: giro[0], rotationX: 7, scale: .95 },
+                   { rotationY: giro[1], rotationX: -3, scale: 1.02, duration: dur, ease: "sine.inOut" }, 0);
+
+    // Entrada palavra a palavra, virando no eixo X.
+    words.forEach((w, i) => {
+      const at = t0 + i * step;
+      if (w.classList.contains("hl")) {
+        tl.fromTo(w.querySelector(".hl-bg"), { scaleX: 0 }, { scaleX: 1, duration: .55, ease: "expo.inOut" }, at)
+          .fromTo(w.querySelector(".hl-txt"),
+            { yPercent: 105, rotationX: -80, transformPerspective: 700, transformOrigin: "50% 100%" },
+            { yPercent: 0, rotationX: 0, duration: .75, ease: "expo.out" }, at + .22);
+      } else {
+        tl.fromTo(w,
+          { rotationX: -100, yPercent: 35, z: -60, opacity: 0, transformPerspective: 900, transformOrigin: "50% 100% -30px" },
+          { rotationX: 0, yPercent: 0, z: 0, opacity: 1, duration: .75, ease: "expo.out" }, at);
+      }
+    });
+
+    if (saida) {
+      tl.to(words, { rotationX: 95, yPercent: -30, opacity: 0, transformPerspective: 900, duration: .35, ease: "power2.in", stagger: .025 }, dur - .45);
+    }
+    if (tipo === "pagina") tl.fromTo("#progress", { scaleX: 0 }, { scaleX: 1, duration: dur, ease: "none" }, 0);
+    tl.to({}, { duration: .01 }, dur - .01);
+
+    const q = params.get("t");
+    if (q !== null) { tl.pause(); tl.seek(parseFloat(q), false); }
+    document.body.addEventListener("click", () => { if (!RENDER) tl.restart(); });
+    stage.style.visibility = "visible";
+    window.tl = tl;
+    window.renderInfo = { width: 1920, height: 1080, duration: dur, alpha: tipo === "overlay" };
+    window.renderReady = true;
+  }
+
+  Promise.all([
+    document.fonts.load('900 100px "Inter Tight"'),
+    document.fonts.load('italic 100px "Instrument Serif"'),
+    document.fonts.load('500 20px "JetBrains Mono"'),
+  ]).then(() => document.fonts.ready).then(build);
+</script>
+</body>
+</html>
