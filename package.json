@@ -5,7 +5,8 @@
   "scripts": {
     "vinheta": "node scripts/render.js",
     "titulos": "node scripts/render-titulos.js",
-    "legendas": "node scripts/render-legendas.js"
+    "legendas": "node scripts/render-legendas.js",
+    "thumbnail": "node scripts/render-thumbnail.js"
   },
   "devDependencies": {
     "playwright": "^1.56.1"

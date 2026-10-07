@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thumbnail</title>
+<link rel="stylesheet" href="../assets/fonts.css">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f5f5;
+    --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1280px; height: 720px;
+    transform-origin: 0 0;
+    overflow: hidden;
+    background: var(--black); color: var(--white);
+    font-family: var(--sans);
+    visibility: hidden;
+  }
+  .foto { position: absolute; top: 0; right: 0; width: 62%; height: 100%; }
+  .foto img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.25) brightness(1.02); }
+  /* escurece a borda esquerda da foto para o texto respirar */
+  .foto::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, var(--black) 0%, rgba(10, 10, 10, .65) 22%, rgba(10, 10, 10, 0) 55%);
+  }
+  .texto {
+    position: absolute; left: 64px; top: 50%; transform: translateY(-50%);
+    font-weight: 900; font-size: 128px; line-height: .95; letter-spacing: -0.045em;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, .6));
+  }
+  .linha { white-space: nowrap; }
+  .hl {
+    display: inline-block; position: relative;
+    padding: .02em .17em .1em .13em; margin-top: .08em;
+    font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em;
+    font-size: 1.32em; line-height: .92;
+    background: var(--white); color: var(--black);
+  }
+  .tag {
+    position: absolute; left: 64px; top: 48px;
+    font-family: var(--mono); font-size: 22px; letter-spacing: .12em;
+  }
+  .moldura { position: absolute; inset: 18px; border: 2px solid rgba(245, 245, 245, .85); pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="foto"><img alt=""></div>
+  <div class="texto"></div>
+  <div class="tag"></div>
+  <div class="moldura"></div>
+</div>
+<script src="dados/thumbnail.js"></script>
+<script>
+  // ?id=A → qual opção de dados/thumbnail.js (padrão: a primeira)
+  const params = new URLSearchParams(location.search);
+  const THUMBS = window.THUMBS || [];
+  const t = THUMBS.find((x) => x.id === params.get("id")) || THUMBS[0];
+  document.title = `${t.id} · Thumbnail`;
+
+  const stage = document.getElementById("stage");
+  function fit() {
+    const s = Math.min(innerWidth / 1280, innerHeight / 720);
+    stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
+  }
+  addEventListener("resize", fit); fit();
+
+  const img = document.querySelector(".foto img");
+  img.src = t.foto;
+  img.style.objectPosition = `${(t.foco || [50, 50])[0]}% ${(t.foco || [50, 50])[1]}%`;
+  document.querySelector(".tag").textContent = t.tag || "";
+
+  const texto = document.querySelector(".texto");
+  for (const linha of t.texto.split("\n")) {
+    const div = document.createElement("div");
+    div.className = "linha";
+    for (const m of linha.matchAll(/\*([^*]+)\*(\S*)|(\S+)/g)) {
+      if (div.childNodes.length) div.append(" ");
+      if (m[3] !== undefined) div.append(m[3]);
+      else {
+        const hl = document.createElement("span");
+        hl.className = "hl";
+        hl.textContent = m[1] + m[2];
+        div.append(hl);
+      }
+    }
+    texto.append(div);
+  }
+
+  Promise.all([
+    document.fonts.load('900 100px "Inter Tight"'),
+    document.fonts.load('italic 100px "Instrument Serif"'),
+    document.fonts.load('500 20px "JetBrains Mono"'),
+    img.decode().catch(() => {}),
+  ]).then(() => {
+    // o texto não pode invadir o rosto: encolhe até caber na metade esquerda
+    const max = 640;
+    if (texto.offsetWidth > max) texto.style.fontSize = 128 * max / texto.offsetWidth + "px";
+    stage.style.visibility = "visible";
+    window.renderInfo = { width: 1280, height: 720 };
+    window.renderReady = true;
+  });
+</script>
+</body>
+</html>

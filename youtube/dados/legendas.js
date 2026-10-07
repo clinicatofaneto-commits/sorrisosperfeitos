@@ -1,6 +1,6 @@
 // Legendas dos Reels, palavra a palavra. Tempos em segundos a partir do início do Reel.
 //   p: palavra (use *palavra* para o itálico serifado), i: início, f: fim
-// Gerado a partir da transcrição (scripts/transcrever.py + scripts/premiere_xml.py --legendas).
+// Gerado a partir da transcrição: scripts/transcrever.py e depois scripts/legendas_reels.py.
 // O R00 abaixo é só um exemplo com tempos fictícios.
 window.LEGENDAS = {
   R00: [

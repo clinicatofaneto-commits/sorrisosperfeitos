@@ -1,0 +1,47 @@
+{
+  "projeto": "TOFA_YT_PILOTO",
+  "fps": "29.97",
+  "midias": {
+    "A001": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/BRUTO/A001.MP4", "largura": 3840, "altura": 2160, "fps": "29.97", "duracao": 1800, "canais": 2 },
+    "VINHETA": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/vinheta.mp4", "largura": 1920, "altura": 1080, "fps": "29.97", "duracao": 15, "canais": 0 },
+    "T01": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/titulos/T01.mp4", "largura": 1920, "altura": 1080, "fps": "29.97", "duracao": 3.5, "canais": 0 },
+    "T03": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/titulos/T03.mov", "largura": 1920, "altura": 1080, "fps": "29.97", "duracao": 3.5, "canais": 0, "alfa": true },
+    "R01_LEG": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/legendas/R01_legenda.mov", "largura": 1080, "altura": 1920, "fps": "29.97", "duracao": 6.4, "canais": 0, "alfa": true }
+  },
+  "sequencias": [
+    {
+      "nome": "TOFA_YT_PILOTO_16x9",
+      "largura": 1920, "altura": 1080,
+      "audio_vazias": 2,
+      "v1": [
+        { "id": "g1", "midia": "A001", "entrada": 61.20, "saida": 63.10, "zoom": 1.0 },
+        { "id": "g2", "midia": "A001", "entrada": 64.05, "saida": 65.30, "zoom": 1.18 },
+        { "id": "g3", "midia": "A001", "entrada": 70.40, "saida": 73.90, "zoom": [1.0, 1.12] },
+        { "id": "apres", "midia": "A001", "entrada": 120.00, "saida": 136.00 },
+        { "id": "c5", "midia": "A001", "entrada": 140.50, "saida": 146.00 }
+      ],
+      "sobre": [
+        { "faixa": 2, "midia": "VINHETA", "no": "apres", "desloc": 0.5 },
+        { "faixa": 2, "midia": "T01", "no": "c5", "desloc": 0.2 },
+        { "faixa": 3, "midia": "T03", "no": "g3", "desloc": 0.3 }
+      ],
+      "marcadores": [
+        { "em": 0, "nome": "GANCHO", "nota": "primeiros 30 s: cortes rápidos e zooms" },
+        { "no": "apres", "nome": "APRESENTAÇÃO", "nota": "vinheta por cima da fala" }
+      ]
+    },
+    {
+      "nome": "REELS_01_9x16",
+      "largura": 1080, "altura": 1920,
+      "audio_vazias": 1,
+      "v1": [
+        { "id": "r1", "midia": "A001", "entrada": 61.20, "saida": 63.10 },
+        { "id": "r2", "midia": "A001", "entrada": 64.05, "saida": 65.30, "zoom": 1.15 },
+        { "id": "r3", "midia": "A001", "entrada": 70.40, "saida": 73.90, "posicao": [-120, 0] }
+      ],
+      "sobre": [
+        { "faixa": 2, "midia": "R01_LEG", "em": 0 }
+      ]
+    }
+  ]
+}

@@ -79,4 +79,20 @@ async function renderizar(browser, { html, query = "", fps = 30, saida }) {
   }
 }
 
-module.exports = { abrirNavegador, renderizar, lerDados, lerArgumentos, fpsRatio, fpsNumber };
+// Captura um único quadro (thumbnail). A extensão de `saida` escolhe o formato (.jpg ou .png).
+async function capturar(browser, { html, query = "", saida }) {
+  const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+  try {
+    await page.goto(pathToFileURL(path.resolve(html)).href + "?render" + (query ? "&" + query : ""), { waitUntil: "load" });
+    await page.waitForFunction(() => window.renderReady && [...document.images].every((img) => img.complete));
+    const info = await page.evaluate(() => window.renderInfo);
+    await page.setViewportSize({ width: info.width, height: info.height });
+    fs.mkdirSync(path.dirname(path.resolve(saida)), { recursive: true });
+    const jpg = /\.jpe?g$/i.test(saida);
+    await page.screenshot({ path: saida, type: jpg ? "jpeg" : "png", ...(jpg ? { quality: 92 } : {}) });
+  } finally {
+    await page.close();
+  }
+}
+
+module.exports = { abrirNavegador, renderizar, capturar, lerDados, lerArgumentos, fpsRatio, fpsNumber };
