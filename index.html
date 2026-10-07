@@ -4,22 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thiago Tofaneto</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800;900&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
+  @font-face {
+    font-family: "Inter Tight"; font-style: normal; font-weight: 500 900; font-display: block;
+    src: url("assets/fonts/inter-tight.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Instrument Serif"; font-style: italic; font-weight: 400; font-display: block;
+    src: url("assets/fonts/instrument-serif-italic.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "JetBrains Mono"; font-style: normal; font-weight: 500; font-display: block;
+    src: url("assets/fonts/jetbrains-mono.woff2") format("woff2");
+  }
+
   :root {
     --black: #0a0a0a;
-    --white: #f6f4ef;
-    --gold: #e2b05a;      /* destaque sobre preto */
-    --gold-deep: #a8741f; /* destaque sobre branco */
+    --white: #f5f5f5;
+    --gray: #8c8c8c;
+    --line: #3d3d3d;
     --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
     --serif: "Instrument Serif", Georgia, serif;
     --mono: "JetBrains Mono", ui-monospace, monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
-  body { display: grid; place-items: center; cursor: pointer; }
+  body { cursor: pointer; }
 
   #stage {
     position: absolute; left: 50%; top: 50%;
@@ -28,18 +38,33 @@
     overflow: hidden;
     background: var(--black);
     font-family: var(--sans);
+    visibility: hidden;
   }
   .scene { position: absolute; inset: 0; }
   .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
   .mask { display: block; overflow: hidden; padding-bottom: .08em; }
-  .mask > span { display: inline-block; will-change: transform; }
+  .mask > span { display: inline-block; }
+
+  /* Palavra em itálico dentro de um bloco invertido (branco no preto / preto no branco) */
+  .hl {
+    position: relative; display: inline-block;
+    padding: .02em .17em .1em .13em;
+    line-height: .92;
+    clip-path: inset(0);
+  }
+  .hl-bg { position: absolute; inset: 0; display: block; transform-origin: 0 50%; }
+  .hl-txt { position: relative; display: inline-block; }
+  .hl--light .hl-bg { background: var(--white); }
+  .hl--light .hl-txt { color: var(--black); }
+  .hl--dark .hl-bg { background: var(--black); }
+  .hl--dark .hl-txt { color: var(--white); }
 
   /* ---------- CENA 1 — linha → pílula → "O" ---------- */
   #s1 { background: var(--black); color: var(--white); }
+  .s1-inner { position: absolute; inset: 0; }
   .name-row {
-    position: absolute; left: 0; right: 0; top: 260px;
+    position: absolute; left: 0; right: 0; top: 262px; height: 230px;
     display: flex; justify-content: center; align-items: center;
-    height: 230px;
   }
   .thiag { overflow: hidden; width: 0; white-space: nowrap; }
   .thiag span {
@@ -51,105 +76,91 @@
     border-radius: 999px;
     background: var(--white);
     border: 0 solid var(--white);
-    margin-left: 0;
   }
-  .surname {
-    position: absolute; left: 0; right: 0; top: 500px;
-    text-align: center; font-size: 230px; line-height: 1; color: var(--gold);
-    clip-path: inset(0 100% 0 0);
-  }
-  .role {
-    position: absolute; left: 0; right: 0; top: 820px;
-    display: flex; justify-content: center; align-items: center; gap: 28px;
-    font-weight: 700; font-size: 30px; letter-spacing: .5em; text-indent: .5em;
-  }
-  .role i { display: block; width: 120px; height: 2px; background: currentColor; transform: scaleX(0); }
-  .role b { opacity: 0; }
+  .surname { position: absolute; left: 0; right: 0; top: 528px; text-align: center; font-size: 210px; }
 
   /* ---------- CENA 2 — foto em círculo ---------- */
-  #s2 { background: var(--white); color: var(--black); clip-path: circle(0px at 50% 50%); }
-  .portrait {
-    position: absolute; left: 560px; top: 540px;
-    width: 0; height: 0;
-  }
-  .ring {
-    position: absolute; left: -390px; top: -390px; width: 780px; height: 780px;
-  }
-  .ring text { font-family: var(--sans); font-weight: 800; font-size: 27px; fill: var(--black); }
-  .ring .dot { fill: var(--gold-deep); }
-  .photo {
-    position: absolute; left: -275px; top: -275px; width: 550px; height: 550px;
-    border-radius: 50%; overflow: hidden; background: #111;
-  }
-  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #s2 { background: var(--white); color: var(--black); }
+  .portrait { position: absolute; left: 560px; top: 540px; width: 0; height: 0; }
+  .ring { position: absolute; left: -390px; top: -390px; width: 780px; height: 780px; }
+  .ring text { font-family: var(--sans); font-weight: 800; font-size: 28px; fill: var(--black); }
   .photo-outline {
     position: absolute; left: -300px; top: -300px; width: 600px; height: 600px;
     border-radius: 50%; border: 2px solid var(--black);
   }
-  .s2-copy { position: absolute; left: 1010px; top: 300px; width: 840px; }
-  .tag {
-    display: inline-flex; align-items: center; gap: 14px;
-    border: 2px solid currentColor; border-radius: 999px;
-    padding: 10px 26px 10px 18px;
-    font-weight: 800; font-size: 26px; letter-spacing: .22em;
+  .photo {
+    position: absolute; left: -275px; top: -275px; width: 550px; height: 550px;
+    border-radius: 50%; overflow: hidden; background: var(--black);
   }
-  .tag::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--gold-deep); }
-  .s2-copy h2 { margin-top: 40px; font-weight: 900; font-size: 104px; line-height: .98; letter-spacing: -0.04em; }
-  .s2-copy h2 .serif { color: var(--gold-deep); font-size: 150px; line-height: .9; }
-  .underline { height: 4px; width: 420px; background: var(--gold-deep); margin-top: 18px; transform-origin: left; transform: scaleX(0); }
+  /* Foto em preto e branco: apague o filter para voltar às cores originais. */
+  .photo img, .avatar img { filter: grayscale(1) contrast(1.12); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .s2-copy { position: absolute; left: 1010px; top: 322px; }
+  .s2-copy h2 { font-weight: 900; font-size: 104px; line-height: .98; letter-spacing: -0.04em; }
+  .s2-copy .hl { font-size: 150px; margin-top: 14px; }
 
-  /* ---------- CENA 3 — CTA ---------- */
-  #s3 { background: var(--black); color: var(--white); clip-path: inset(0 100% 0 0); }
-  #wipe-bar {
-    position: absolute; top: 0; bottom: 0; left: 0; width: 70px;
-    background: var(--gold); transform: translateX(-100px); z-index: 5;
-  }
-  .s3-copy { position: absolute; left: 150px; top: 200px; }
-  .s3-copy h1 { font-weight: 900; font-size: 168px; line-height: .95; letter-spacing: -0.045em; }
-  .s3-copy h1 .serif { color: var(--gold); font-size: 230px; line-height: .86; letter-spacing: -0.02em; }
+  /* ---------- CENA 3 — wipe em faixas ---------- */
+  #s3 { color: var(--white); }
+  .bars { position: absolute; inset: 0; }
+  .bars i { display: block; height: 180px; background: var(--black); transform-origin: 0 50%; }
+  .s3-copy { position: absolute; left: 0; right: 0; top: 168px; text-align: center; }
+  .s3-copy h1 { font-weight: 900; font-size: 176px; line-height: .95; letter-spacing: -0.045em; }
+  .s3-copy .hl { font-size: 212px; margin-top: 16px; }
   .counter {
-    margin-top: 34px; display: flex; align-items: baseline; gap: 22px;
-    font-weight: 700; font-size: 34px; letter-spacing: .02em; opacity: 0;
+    margin-top: 40px; display: flex; justify-content: center; align-items: baseline; gap: 22px;
+    font-weight: 700; font-size: 34px;
   }
-  .counter .num { font-family: var(--mono); font-size: 64px; color: var(--gold); min-width: 4.2ch; }
+  .counter .num { font-family: var(--mono); font-size: 64px; min-width: 4.2ch; text-align: right; }
 
+  /* ---------- CENA 4 — inscreva-se + sino ---------- */
+  #s4 { background: var(--white); color: var(--black); }
+  .s4-copy { position: absolute; left: 150px; top: 262px; }
+  .s4-copy h2 { font-weight: 900; font-size: 116px; line-height: 1; letter-spacing: -0.04em; }
+  .s4-copy .hl { font-size: 150px; margin-left: .17em; }
   .card {
-    position: absolute; left: 1180px; top: 330px; width: 600px;
+    position: absolute; left: 1180px; top: 315px; width: 600px;
     padding: 46px; border-radius: 36px;
-    background: #151515; border: 1px solid #2a2a2a;
-    opacity: 0;
+    background: var(--black); color: var(--white);
   }
   .card-head { display: flex; align-items: center; gap: 26px; }
   .avatar {
-    width: 128px; height: 128px; border-radius: 50%; padding: 5px;
-    background: conic-gradient(from 200deg, var(--gold), #fff3d6, var(--gold-deep), var(--gold));
-    flex: none;
+    flex: none; width: 124px; height: 124px; border-radius: 50%;
+    padding: 5px; border: 3px solid var(--white);
   }
-  .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #151515; display: block; }
-  .handle { font-weight: 800; font-size: 38px; letter-spacing: -0.02em; }
-  .sub { margin-top: 6px; font-weight: 500; font-size: 24px; color: #9a9a9a; }
-  .follow {
-    position: relative; overflow: hidden;
-    margin-top: 40px; width: 100%; height: 96px; border-radius: 22px;
-    background: var(--gold); color: var(--black);
+  .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+  .name { font-weight: 800; font-size: 40px; letter-spacing: -0.02em; }
+  .handle { margin-top: 6px; font-weight: 500; font-size: 25px; color: var(--gray); }
+  .actions { display: flex; gap: 16px; margin-top: 40px; }
+  .sub-btn {
+    position: relative; overflow: hidden; flex: 1; height: 96px; border-radius: 999px;
+    background: var(--white); color: var(--black);
+    font-weight: 800; font-size: 34px; letter-spacing: -0.01em;
+  }
+  .sub-btn .lbl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .sub-btn .lbl-done { color: var(--white); }
+  .lbl-done svg { width: 34px; height: 34px; }
+  .bell-btn {
+    position: relative; overflow: hidden; flex: none; width: 96px; height: 96px; border-radius: 50%;
+    border: 2px solid var(--line); color: var(--white);
     display: grid; place-items: center;
-    font-weight: 800; font-size: 36px; letter-spacing: -0.01em;
-    border: 2px solid var(--gold);
   }
-  .follow .lbl { position: absolute; inset: 0; display: grid; place-items: center; }
-  .follow .lbl-done { color: var(--white); opacity: 0; }
+  .bell { position: relative; width: 50px; height: 50px; overflow: visible; }
+  .bell .bell-shape { fill: rgba(10, 10, 10, 0); }
   .ripple {
     position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px;
-    border-radius: 50%; background: rgba(255,255,255,.55); transform: scale(0);
+    border-radius: 50%; background: rgba(140, 140, 140, .55);
   }
-  .plus {
-    position: absolute; right: 40px; top: -30px;
-    font-family: var(--mono); font-size: 34px; color: var(--gold); opacity: 0;
+  .toast { position: absolute; left: 1180px; top: 695px; width: 600px; display: flex; justify-content: center; }
+  .toast span {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 18px 32px; border-radius: 999px;
+    background: var(--black); color: var(--white);
+    font-weight: 700; font-size: 28px;
   }
+  .toast svg { width: 30px; height: 30px; }
   #cursor {
     position: absolute; left: 0; top: 0; width: 64px; height: 64px; z-index: 10;
-    transform: translate(1900px, 1150px);
-    filter: drop-shadow(0 6px 14px rgba(0,0,0,.5));
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .35));
   }
 
   /* ---------- HUD (inverte sozinho sobre preto/branco) ---------- */
@@ -162,7 +173,7 @@
   .hud .tr { position: absolute; right: 70px; top: 56px; }
   .hud .bl { position: absolute; left: 70px; bottom: 56px; }
   .hud .br { position: absolute; right: 70px; bottom: 56px; }
-  .hud .bar { position: absolute; left: 70px; right: 70px; bottom: 40px; height: 2px; background: rgba(255,255,255,.25); }
+  .hud .bar { position: absolute; left: 70px; right: 70px; bottom: 40px; height: 2px; background: rgba(255, 255, 255, .25); }
   .hud .bar i { display: block; height: 100%; width: 100%; background: #fff; transform-origin: left; transform: scaleX(0); }
 </style>
 </head>
@@ -171,12 +182,15 @@
 
   <!-- CENA 1 -->
   <section class="scene" id="s1">
-    <div class="name-row">
-      <div class="thiag"><span>THIAG</span></div>
-      <div id="pill"></div>
+    <div class="s1-inner">
+      <div class="name-row">
+        <div class="thiag"><span>THIAG</span></div>
+        <div id="pill"></div>
+      </div>
+      <div class="surname">
+        <span class="hl hl--light" id="hl-name"><i class="hl-bg"></i><span class="hl-txt serif">Tofaneto</span></span>
+      </div>
     </div>
-    <div class="surname serif">Tofaneto</div>
-    <div class="role"><i></i><b>CEO</b><i></i></div>
   </section>
 
   <!-- CENA 2 -->
@@ -184,70 +198,107 @@
     <div class="portrait">
       <svg class="ring" viewBox="0 0 780 780" aria-hidden="true">
         <defs><path id="circ" d="M390,390 m-345,0 a345,345 0 1,1 690,0 a345,345 0 1,1 -690,0"/></defs>
-        <text><textPath href="#circ" textLength="2160" lengthAdjust="spacing">@THIAGOTOFANETO <tspan class="dot">✦</tspan> CEO <tspan class="dot">✦</tspan> LENTE DE CONTATO DENTAL <tspan class="dot">✦</tspan> SORRISOS PERFEITOS <tspan class="dot">✦</tspan></textPath></text>
+        <text><textPath href="#circ" textLength="2160" lengthAdjust="spacing">@THIAGOTOFANETO ✦ LENTE DE CONTATO DENTAL ✦ SORRISOS PERFEITOS ✦</textPath></text>
       </svg>
       <div class="photo-outline"></div>
       <div class="photo"><img src="assets/thiago.jpg" alt="Thiago Tofaneto"></div>
     </div>
     <div class="s2-copy">
-      <div class="tag">CEO</div>
       <h2>
         <span class="mask"><span>Especialista em</span></span>
         <span class="mask"><span>Lente de Contato</span></span>
-        <span class="mask"><span class="serif">Dental.</span></span>
+        <span class="mask"><span><span class="hl hl--dark" id="hl-dental"><i class="hl-bg"></i><span class="hl-txt serif">Dental.</span></span></span></span>
       </h2>
-      <div class="underline"></div>
     </div>
   </section>
 
   <!-- CENA 3 -->
   <section class="scene" id="s3">
+    <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="s3-copy">
       <h1>
         <span class="mask"><span>Transformo</span></span>
         <span class="mask"><span>Sorrisos,</span></span>
-        <span class="mask"><span class="serif">Perfeitos!</span></span>
+        <span class="mask"><span><span class="hl hl--light" id="hl-perfeitos"><i class="hl-bg"></i><span class="hl-txt serif">Perfeitos!</span></span></span></span>
       </h1>
       <div class="counter"><span class="num">0%</span><span>lente de contato dental</span></div>
     </div>
+  </section>
+
+  <!-- CENA 4 -->
+  <section class="scene" id="s4">
+    <div class="s4-copy">
+      <h2>
+        <span class="mask"><span>Se inscreva</span></span>
+        <span class="mask"><span>no<span class="hl hl--dark" id="hl-canal"><i class="hl-bg"></i><span class="hl-txt serif">canal</span></span></span></span>
+        <span class="mask"><span>e ative o<span class="hl hl--dark" id="hl-sino"><i class="hl-bg"></i><span class="hl-txt serif">sino</span></span></span></span>
+      </h2>
+    </div>
 
     <div class="card">
-      <div class="plus">+1</div>
       <div class="card-head">
         <div class="avatar"><img src="assets/thiago.jpg" alt=""></div>
         <div>
+          <div class="name">Thiago Tofaneto</div>
           <div class="handle">@thiagotofaneto</div>
-          <div class="sub">Thiago Tofaneto · CEO</div>
         </div>
       </div>
-      <div class="follow">
-        <span class="ripple"></span>
-        <span class="lbl lbl-go">Seguir</span>
-        <span class="lbl lbl-done">Seguindo ✓</span>
+      <div class="actions">
+        <div class="sub-btn">
+          <span class="ripple"></span>
+          <span class="lbl lbl-go">Inscrever-se</span>
+          <span class="lbl lbl-done">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg>
+            Inscrito
+          </span>
+        </div>
+        <div class="bell-btn">
+          <span class="ripple"></span>
+          <svg class="bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <g class="bell-body">
+              <path class="bell-shape" d="M6 16.2V11a6 6 0 0 1 12 0v5.2l1.6 2.1H4.4L6 16.2Z"/>
+              <path d="M12 3.4V5"/>
+              <path d="M9.9 20.6a2.2 2.2 0 0 0 4.2 0"/>
+            </g>
+            <path class="wave" d="M3.2 9a9.4 9.4 0 0 1 2.7-5.3"/>
+            <path class="wave" d="M20.8 9a9.4 9.4 0 0 0-2.7-5.3"/>
+          </svg>
+        </div>
       </div>
     </div>
 
+    <div class="toast">
+      <span>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 16.2V11a6 6 0 0 1 12 0v5.2l1.6 2.1H4.4L6 16.2Z"/><path d="M9.9 20a2.2 2.2 0 0 0 4.2 0Z"/></svg>
+        Notificações ativadas
+      </span>
+    </div>
+
     <svg id="cursor" viewBox="0 0 64 64" aria-hidden="true">
-      <path d="M12 6 L12 50 L23 40 L31 58 L39 54 L31 37 L46 37 Z" fill="#fff" stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M12 6 L12 50 L23 40 L31 58 L39 54 L31 37 L46 37 Z" fill="#f5f5f5" stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"/>
     </svg>
   </section>
-  <div id="wipe-bar"></div>
 
   <!-- HUD -->
   <div class="hud">
     <div class="tl">THIAGO TOFANETO</div>
-    <div class="tr"><span id="sceneNo">01</span> / 03</div>
+    <div class="tr"><span id="sceneNo">01</span> / 04</div>
     <div class="bl">@THIAGOTOFANETO</div>
     <div class="br">00:<span id="clock">00</span></div>
     <div class="bar"><i id="progress"></i></div>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="assets/vendor/gsap.min.js"></script>
 <script>
   // Valor final do contador da cena 3 (troque se quiser outro número).
   const COUNTER_TARGET = 100;
   const DURATION = 15;
+
+  // ?render  → timeline parada, controlada quadro a quadro por scripts/render.js
+  // ?t=7.5   → congela num instante (prévia)
+  const params = new URLSearchParams(location.search);
+  const RENDER = params.has("render");
 
   const stage = document.getElementById("stage");
   function fit() {
@@ -257,93 +308,140 @@
   addEventListener("resize", fit); fit();
 
   const $ = (s) => document.querySelector(s);
-  const $$ = (s) => document.querySelectorAll(s);
 
-  function build() {
-    // Medidas para a pílula virar o "O" e para o iris sair dela.
-    const thiag = $(".thiag");
-    const W = thiag.scrollWidth;
-    const O_W = 168, O_H = 196, O_GAP = 6;
-    const pillCenterX = 960 + (W + O_GAP + O_W) / 2 - O_W / 2;
-    const pillCenterY = 260 + 230 / 2;
-
-    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1, defaults: { ease: "expo.out" } });
-    const hold = { t: 0 };
-
-    // ---------------- CENA 1 ----------------
-    tl.set("#s2", { clipPath: `circle(0px at ${pillCenterX}px ${pillCenterY}px)` }, 0)
-      .fromTo("#pill", { width: 0, height: 8, backgroundColor: "rgba(246,244,239,1)", borderWidth: 0 },
-                       { width: 820, duration: .8 }, .2)
-      .to("#pill", { width: O_W, height: O_H, duration: .8, ease: "expo.inOut" }, 1.0)
-      .to("#pill", { backgroundColor: "rgba(246,244,239,0)", borderWidth: 30, duration: .5, ease: "power2.inOut" }, 1.3)
-      .fromTo(".thiag", { width: 0 }, { width: W, duration: .9, ease: "expo.inOut" }, 1.75)
-      .fromTo("#pill", { marginLeft: 0 }, { marginLeft: O_GAP, duration: .9, ease: "expo.inOut" }, 1.75)
-      .fromTo(".thiag span", { xPercent: 30 }, { xPercent: 0, duration: 1.1 }, 1.75)
-      .fromTo(".surname", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1, ease: "expo.inOut" }, 2.35)
-      .fromTo(".role i", { scaleX: 0 }, { scaleX: 1, duration: .8 }, 2.9)
-      .fromTo(".role b", { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".5em", duration: .9 }, 2.95)
-      .to("#pill", { scale: 1.12, duration: .35, ease: "power2.out" }, 3.75)
-
-    // ------- IRIS → CENA 2 (abre a partir do "O") -------
-      .to("#s2", { clipPath: `circle(2300px at ${pillCenterX}px ${pillCenterY}px)`, duration: 1.05, ease: "power3.inOut" }, 3.9)
-      .call(() => $("#sceneNo").textContent = "02", null, 4.4)
-
-    // ---------------- CENA 2 ----------------
-      .fromTo(".photo", { scale: .2, rotation: -25 }, { scale: 1, rotation: 0, duration: 1.2 }, 4.35)
-      .fromTo(".photo img", { scale: 1.5 }, { scale: 1, duration: 1.8 }, 4.35)
-      .fromTo(".photo-outline", { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2 }, 4.55)
-      .fromTo(".ring", { opacity: 0, scale: .85 }, { opacity: 1, scale: 1, duration: 1 }, 4.7)
-      .fromTo(".ring", { rotation: -40 }, { rotation: 140, duration: 5.4, ease: "none" }, 4.3)
-      .fromTo(".s2-copy .tag", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .8 }, 4.9)
-      .fromTo(".s2-copy .mask > span", { yPercent: 115 }, { yPercent: 0, duration: 1, stagger: .2 }, 5.05)
-      .fromTo(".underline", { scaleX: 0 }, { scaleX: 1, duration: .9, ease: "expo.inOut" }, 6.0)
-
-    // ------- WIPE → CENA 3 -------
-      .fromTo("#wipe-bar", { x: -100 }, { x: 1940, duration: .95, ease: "power3.inOut" }, 8.75)
-      .fromTo("#s3", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: .95, ease: "power3.inOut" }, 8.78)
-      .call(() => $("#sceneNo").textContent = "03", null, 9.2)
-
-    // ---------------- CENA 3 ----------------
-      .fromTo("#s3 .mask > span", { yPercent: 115 }, { yPercent: 0, duration: .9, stagger: .28 }, 9.45)
-      .fromTo("#s3 .serif", { scale: 1.25, transformOrigin: "0% 80%" }, { scale: 1, duration: 1.1 }, 10.0)
-      .to(".counter", { opacity: 1, duration: .5, ease: "power2.out" }, 10.5)
-      .fromTo(hold, { t: 0 }, {
-          t: COUNTER_TARGET, duration: 1.6, ease: "power2.out",
-          onUpdate: () => $(".counter .num").textContent = Math.round(hold.t) + "%"
-        }, 10.5)
-      .fromTo(".card", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 1 }, 11.2)
-      // cursor até o botão
-      .fromTo("#cursor", { x: 1900, y: 1150 }, { x: 1482, y: 612, duration: 1.1, ease: "power3.inOut" }, 11.9)
-      // clique
-      .to("#cursor", { scale: .82, duration: .12, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "20% 10%" }, 13.05)
-      .to(".follow", { scale: .95, duration: .12, ease: "power2.in", yoyo: true, repeat: 1 }, 13.05)
-      .fromTo(".ripple", { scale: 0, opacity: 1 }, { scale: 18, opacity: 0, duration: .8, ease: "power2.out" }, 13.1)
-      .to(".follow", { backgroundColor: "rgba(226,176,90,0)", duration: .35, ease: "power2.out" }, 13.2)
-      .to(".lbl-go", { yPercent: -100, opacity: 0, duration: .35, ease: "power2.in" }, 13.2)
-      .fromTo(".lbl-done", { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .5 }, 13.3)
-      .fromTo(".plus", { opacity: 0, y: 20 }, { opacity: 1, y: -30, duration: .6, ease: "power2.out" }, 13.3)
-      .to(".plus", { opacity: 0, y: -60, duration: .5, ease: "power2.in" }, 14.0)
-      .to("#cursor", { x: 1600, y: 700, duration: .9, ease: "power2.inOut" }, 13.7)
-      .to({}, { duration: .01 }, DURATION - .01);
-
-    // HUD: contador de tempo crescente + barra de progresso
-    tl.eventCallback("onUpdate", () => {
-      const t = tl.time();
-      $("#clock").textContent = String(Math.min(DURATION, Math.floor(t))).padStart(2, "0");
-      gsap.set("#progress", { scaleX: t / DURATION });
-      if (t < 4.4) $("#sceneNo").textContent = "01";
-      else if (t < 9.2) $("#sceneNo").textContent = "02";
-      else $("#sceneNo").textContent = "03";
-    });
-
-    // ?t=7.5 congela num instante (útil para prévias/gravação); clique reinicia.
-    const q = new URLSearchParams(location.search).get("t");
-    if (q !== null) { tl.pause(); tl.seek(parseFloat(q), false); }
-    document.body.addEventListener("click", () => tl.restart());
-    window.tl = tl;
+  // Centro de um elemento em coordenadas do palco (1920×1080).
+  function center(el) {
+    const st = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), k = st.width / 1920;
+    return { x: (r.left - st.left + r.width / 2) / k, y: (r.top - st.top + r.height / 2) / k };
+  }
+  // Raio para o iris cobrir a tela inteira a partir de (x, y).
+  function irisRadius(p) {
+    return Math.ceil(Math.max(Math.hypot(p.x, p.y), Math.hypot(1920 - p.x, p.y),
+                              Math.hypot(p.x, 1080 - p.y), Math.hypot(1920 - p.x, 1080 - p.y))) + 40;
   }
 
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(build);
+  // Bloco invertido entra em wipe e a palavra sobe por dentro dele.
+  function reveal(sel) {
+    return gsap.timeline()
+      .fromTo(`${sel} .hl-bg`, { scaleX: 0 }, { scaleX: 1, duration: .6, ease: "expo.inOut" })
+      .fromTo(`${sel} .hl-txt`, { yPercent: 110 }, { yPercent: 0, duration: .8, ease: "expo.out" }, .25);
+  }
+  // Clique: cursor e botão afundam, onda sai do centro do botão.
+  function press(sel) {
+    return gsap.timeline()
+      .to("#cursor", { scale: .82, duration: .12, ease: "power2.in", yoyo: true, repeat: 1 }, 0)
+      .to(sel, { scale: .94, duration: .12, ease: "power2.in", yoyo: true, repeat: 1 }, 0)
+      .fromTo(`${sel} .ripple`, { scale: 0, opacity: 1 }, { scale: 14, opacity: 0, duration: .8, ease: "power2.out" }, .05);
+  }
+
+  function build() {
+    // Medidas feitas antes de qualquer tween mexer no layout.
+    const W = $(".thiag").scrollWidth;
+    const O_W = 168, O_H = 196, O_GAP = 6, Z1 = 1.04;
+    const pillX = 960 - (W + O_GAP + O_W) / 2 + W + O_GAP + O_W / 2;
+    const pillY = 262 + 230 / 2;
+    const iris1 = { x: 960 + (pillX - 960) * Z1, y: 540 + (pillY - 540) * Z1 };
+    const sub = center($(".sub-btn")), bell = center($(".bell-btn"));
+    const r1 = irisRadius(iris1), r4 = irisRadius(sub);
+    const TIP = { x: 9, y: 2 }; // ponta da seta dentro do svg do cursor, menos uma folga
+
+    const tl = gsap.timeline({ paused: RENDER, repeat: RENDER ? 0 : -1, repeatDelay: 1, defaults: { ease: "expo.out" } });
+    const count = { v: 0 };
+
+    tl.set("#s2", { clipPath: `circle(0px at ${iris1.x}px ${iris1.y}px)` }, 0)
+      .set("#s4", { clipPath: `circle(0px at ${sub.x}px ${sub.y}px)` }, 0)
+      .set("#cursor", { x: 1900, y: 1150, transformOrigin: "18% 6%" }, 0)
+      .set(".bell-body", { transformOrigin: "50% 6%" }, 0)
+      .set(".wave", { svgOrigin: "12 11", opacity: 0, scale: .4 }, 0)
+      .set(".sub-btn .lbl-done", { opacity: 0 }, 0)
+      .set(".toast", { opacity: 0 }, 0)
+      .set(".counter", { opacity: 0 }, 0)
+
+    // ---------------- CENA 1 (preto) ----------------
+      .fromTo(".s1-inner", { scale: 1 }, { scale: Z1, duration: 3.15, ease: "none" }, 0)
+      .fromTo("#pill", { width: 0, height: 8, backgroundColor: "rgba(245,245,245,1)", borderWidth: 0 },
+                       { width: 820, duration: .7 }, .1)
+      .to("#pill", { width: O_W, height: O_H, duration: .75, ease: "expo.inOut" }, .8)
+      .to("#pill", { backgroundColor: "rgba(245,245,245,0)", borderWidth: 30, duration: .5, ease: "power2.inOut" }, 1.05)
+      .fromTo(".thiag", { width: 0 }, { width: W, duration: .85, ease: "expo.inOut" }, 1.4)
+      .fromTo("#pill", { marginLeft: 0 }, { marginLeft: O_GAP, duration: .85, ease: "expo.inOut" }, 1.4)
+      .fromTo(".thiag span", { xPercent: 30 }, { xPercent: 0, duration: 1 }, 1.4)
+      .add(reveal("#hl-name"), 1.95)
+      .to("#pill", { scale: 1.12, duration: .3, ease: "power2.out" }, 3.0)
+
+    // ------- IRIS → CENA 2 (abre a partir do "O") -------
+      .to("#s2", { clipPath: `circle(${r1}px at ${iris1.x}px ${iris1.y}px)`, duration: 1, ease: "power3.inOut" }, 3.15)
+
+    // ---------------- CENA 2 (branco) ----------------
+      .fromTo(".photo", { scale: .2, rotation: -25 }, { scale: 1, rotation: 0, duration: 1.1 }, 3.35)
+      .fromTo(".photo img", { scale: 1.5 }, { scale: 1, duration: 1.6 }, 3.35)
+      .to(".photo img", { scale: 1.07, duration: 2.25, ease: "none" }, 4.95)
+      .fromTo(".photo-outline", { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1 }, 3.5)
+      .fromTo(".ring", { opacity: 0, scale: .85 }, { opacity: 1, scale: 1, duration: 1 }, 3.6)
+      .fromTo(".ring", { rotation: -40 }, { rotation: 130, duration: 4.2, ease: "none" }, 3.2)
+      .fromTo("#s2 .mask > span", { yPercent: 115 }, { yPercent: 0, duration: 1, stagger: .16 }, 3.85)
+      .add(reveal("#hl-dental"), 4.45)
+
+    // ------- WIPE em faixas → CENA 3 -------
+      .fromTo("#s3 .bars i", { scaleX: 0 }, { scaleX: 1, duration: .65, ease: "power3.inOut", stagger: .05 }, 6.55)
+
+    // ---------------- CENA 3 (preto) ----------------
+      .fromTo(".s3-copy", { scale: .97 }, { scale: 1.02, duration: 3, ease: "none" }, 7.2)
+      .fromTo("#s3 .mask > span", { yPercent: 115 }, { yPercent: 0, duration: .9, stagger: .18 }, 7.3)
+      .add(reveal("#hl-perfeitos"), 7.75)
+      .to(".counter", { opacity: 1, duration: .5, ease: "power2.out" }, 8.05)
+      .fromTo(count, { v: 0 }, {
+          v: COUNTER_TARGET, duration: 1.3, ease: "power2.out",
+          onUpdate: () => $(".counter .num").textContent = Math.round(count.v) + "%"
+        }, 8.05)
+
+    // ------- IRIS → CENA 4 (abre a partir do botão) -------
+      .to("#s4", { clipPath: `circle(${r4}px at ${sub.x}px ${sub.y}px)`, duration: .95, ease: "power3.inOut" }, 9.75)
+
+    // ---------------- CENA 4 (branco) ----------------
+      .fromTo("#s4 .mask > span", { yPercent: 115 }, { yPercent: 0, duration: .9, stagger: .16 }, 10.05)
+      .add(reveal("#hl-canal"), 10.4)
+      .add(reveal("#hl-sino"), 10.7)
+      .fromTo(".card", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: .9 }, 10.3)
+      // cursor → Inscrever-se
+      .to("#cursor", { x: sub.x - TIP.x, y: sub.y - TIP.y, duration: .95, ease: "power3.inOut" }, 11.25)
+      .add(press(".sub-btn"), 12.25)
+      .to(".sub-btn", { backgroundColor: "#262626", duration: .35, ease: "power2.out" }, 12.4)
+      .to(".sub-btn .lbl-go", { yPercent: -100, opacity: 0, duration: .25, ease: "power2.in" }, 12.35)
+      .fromTo(".sub-btn .lbl-done", { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .5 }, 12.5)
+      // cursor → sino
+      .to("#cursor", { x: bell.x - TIP.x, y: bell.y - TIP.y, duration: .6, ease: "power2.inOut" }, 12.75)
+      .add(press(".bell-btn"), 13.4)
+      .to(".bell-btn", { backgroundColor: "#f5f5f5", borderColor: "#f5f5f5", color: "#0a0a0a", duration: .3, ease: "power2.out" }, 13.5)
+      .to(".bell-shape", { fill: "rgba(10,10,10,1)", duration: .3, ease: "power2.out" }, 13.5)
+      .to(".bell-body", { keyframes: { rotation: [0, 22, -18, 13, -8, 4, 0] }, duration: 1, ease: "power1.inOut" }, 13.5)
+      .to(".wave", { opacity: 1, scale: 1, duration: .5 }, 13.55)
+      .to(".wave", { opacity: .25, duration: .2, ease: "sine.inOut", yoyo: true, repeat: 3 }, 14.1)
+      .fromTo(".toast", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .6 }, 13.7)
+      .to("#cursor", { x: "+=170", y: "+=150", duration: 1, ease: "power2.inOut" }, 14.0)
+      .to({}, { duration: .01 }, DURATION - .01);
+
+    // HUD: contador de tempo crescente + barra de progresso + número da cena
+    tl.eventCallback("onUpdate", () => {
+      const t = tl.time();
+      $("#clock").textContent = String(Math.min(DURATION, Math.round(t))).padStart(2, "0");
+      gsap.set("#progress", { scaleX: t / DURATION });
+      $("#sceneNo").textContent = t < 3.65 ? "01" : t < 7.1 ? "02" : t < 10.2 ? "03" : "04";
+    });
+
+    const q = params.get("t");
+    if (q !== null) { tl.pause(); tl.seek(parseFloat(q), false); }
+    document.body.addEventListener("click", () => { if (!RENDER) tl.restart(); });
+    stage.style.visibility = "visible";
+    window.tl = tl;
+    window.renderReady = true;
+  }
+
+  Promise.all([
+    document.fonts.load('900 100px "Inter Tight"'),
+    document.fonts.load('italic 100px "Instrument Serif"'),
+    document.fonts.load('500 20px "JetBrains Mono"'),
+  ]).then(() => document.fonts.ready).then(build);
 </script>
 </body>
 </html>
