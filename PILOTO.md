@@ -10,8 +10,8 @@ material bruto e o roteiro.
 - **Projeto do Premiere em `YTBE\PROJETO`**, importado de um XML gerado aqui:
   - `TOFA_YT_PILOTO_16x9`: a montagem do YouTube, dinâmica, **sem legenda**, com o material em
     **log** (sem LUT) e faixas de áudio vazias para a música e os efeitos.
-  - `REELS_XX_9x16`: uma sequência vertical para cada sugestão de recorte do roteiro, **com
-    legenda** palavra a palavra.
+  - `REELS_XX_9x16`: uma sequência vertical para **cada tópico** do vídeo, **sem legenda**,
+    abrindo com o título do assunto.
   - Gráficos em preto e branco no estilo da vinheta: a vinheta de apresentação, os títulos 3D
     (página branca ou por cima do vídeo) e os elementos do gancho.
 - **`YTBE\PROJETO\ENTREGA.md`**: sugestões de título, thumbnail (PNG) e copy.
@@ -27,9 +27,11 @@ YTBE\
     GRAFICOS\
       vinheta.mp4
       titulos\             ← T01.mp4 (página), T02.mov (overlay com alfa)...
-      legendas\            ← REELS_01_9x16_legenda.mov, .srt
+      reels\               ← R01_TEMA.mov (título do assunto, vertical, com alfa)...
       thumbnail\
+    MAPA.md                ← cada bloco do roteiro → arquivo e minutagem do take escolhido
     montagem.json          ← todas as decisões de corte; o XML sai dele
+    REVISAO.md             ← relatório do revisar_montagem.py
     TOFA_YT_PILOTO.xml     ← importar no Premiere
     TOFA_YT_PILOTO.prproj  ← salvo pelo Premiere depois da importação
     ENTREGA.md
@@ -60,9 +62,15 @@ Nos comandos abaixo, `$P` é a pasta `PROJETO`:
 
 ### 1. Ler o roteiro
 
-Separe o gancho, a apresentação, os blocos do meio, as frases de destaque, as sugestões de
-Reels e a chamada final. O vídeo segue a ordem do roteiro, mas o que vale é o que o Thiago
-**falou**: o texto do roteiro serve para achar os takes, não para corrigir a fala.
+Separe o gancho, a apresentação, os **tópicos** do meio, as frases de destaque e a chamada
+final. O vídeo segue a ordem do roteiro, mas o que vale é o que o Thiago **falou**: o texto do
+roteiro serve para achar os takes, não para corrigir a fala. Salve o roteiro como `.txt` ou
+`.docx` dentro de `PROJETO` para o passo de revisão.
+
+**Só o material deste roteiro.** A pasta pode ter brutos de outras gravações, outros temas ou
+outros dias. Antes de cortar, confirme quais arquivos são deste vídeo: o texto do `.txt` de
+cada bruto tem que bater com o roteiro. Arquivo que não bate fica fora da montagem. Na
+dúvida, pergunte.
 
 ### 2. Transcrever o bruto
 
@@ -83,6 +91,10 @@ que costuma ser a última. Cada corte vira um item do `v1` no `montagem.json`:
 - `saida`: de 0,12 a 0,2 s depois da última palavra, para o respiro ficar limpo, sem
   inspiração, "é...", repetição nem olhar para o roteiro.
 - Frases da mesma tomada que fluem bem ficam num corte só.
+- Pausa longa (mais de 0,6 s), "é...", tropeço ou repetição no meio da tomada: divida em dois
+  cortes e tire o miolo.
+- Anote em `MAPA.md` cada bloco do roteiro com o arquivo e a minutagem do take escolhido.
+  É o que garante a ordem do roteiro e evita misturar material.
 
 ### 4. Ritmo da montagem
 
@@ -117,17 +129,39 @@ node scripts\render-titulos.js --fps 29.97 --saida "$P\GRAFICOS\titulos"
 
 ### 6. Reels
 
-Faça uma sequência vertical (`"largura": 1080, "altura": 1920`) para cada sugestão de recorte
-do roteiro, de 30 a 60 s, abrindo com a frase mais forte. Liste em `destaques` as palavras que
-devem sair em itálico. Depois:
+**Um Reel para cada tópico do vídeo maior**: o tópico inteiro vira um recorte vertical
+(`"largura": 1080, "altura": 1920`), `REELS_01_9x16`, `REELS_02_9x16`... na ordem do roteiro.
+
+- **Sem legenda.** O assunto é levantado só na abertura: um título 3D vertical por cima do
+  Thiago nos primeiros 2 a 3 s (`"formato": "vertical"` em `frases.js`, ids `R01_TEMA`,
+  `R02_TEMA`...), escrito como pergunta ou promessa curta do tópico.
+- **Dinâmica de tópico**: abre com a frase mais forte do tópico (pode repetir a que vai em
+  seguida), depois cortes secos de 1 a 4 s, zoom alternado a cada corte (`1`, `1.12`, `1.2`)
+  e zoom animado (`[1, 1.12]`) na frase de fechamento. Sem respiro longo: entrada e saída
+  coladas na fala.
+- De 30 a 60 s. Tópico longo: fique com o essencial. Tópico curto demais: junte com o vizinho
+  e avise.
+- Confira o enquadramento: o rosto do Thiago no terço de cima do quadro (ajuste a `posicao`).
 
 ```powershell
-python scripts\legendas_reels.py "$P\montagem.json" --srt "$P\GRAFICOS\legendas"
-node scripts\render-legendas.js --fps 29.97 --saida "$P\GRAFICOS\legendas"
+node scripts\render-titulos.js --fps 29.97 --saida "$P\GRAFICOS\reels" R01_TEMA R02_TEMA R03_TEMA
 ```
 
-Coloque cada `<nome>_legenda.mov` na faixa 2 do seu Reel (`"em": 0`). A vinheta de inscrição
-no canal não entra nos Reels.
+Coloque cada `RXX_TEMA.mov` na faixa 2 do seu Reel (`"em": 0`). A vinheta e as legendas não
+entram nos Reels. (`legendas_reels.py` e `render-legendas.js` ficam para quando pedirem
+legenda.)
+
+### 6b. Revisar antes de gerar
+
+```powershell
+python scripts\revisar_montagem.py "$P\montagem.json" --transcricao "$P\TRANSCRICAO" --roteiro "$P\roteiro.txt" --ajustar "$P\montagem.json" --relatorio "$P\REVISAO.md"
+python scripts\revisar_montagem.py "$P\montagem.json" --transcricao "$P\TRANSCRICAO" --roteiro "$P\roteiro.txt" --relatorio "$P\REVISAO.md"
+```
+
+A primeira passada refaz entradas e saídas pelas palavras, divide cortes com pausa longa e
+tira muletas, voz de quem dirige e tomadas repetidas. A segunda gera o relatório final.
+Resolva todo aviso de **material de outro vídeo**, **fora de ordem** e **trecho do roteiro sem
+corte** antes de gerar o XML (corte proposital: anote no `MAPA.md`).
 
 ### 7. Gerar o projeto
 

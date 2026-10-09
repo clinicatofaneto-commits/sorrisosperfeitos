@@ -20,7 +20,7 @@
 
   #stage {
     position: absolute; left: 50%; top: 50%;
-    width: 1920px; height: 1080px;
+    width: 1920px; height: 1080px; /* 1080 × 1920 no formato vertical (Reels) */
     transform-origin: 0 0;
     overflow: hidden;
     font-family: var(--sans);
@@ -48,6 +48,7 @@
   .lado-esquerda .cam { left: 140px; top: 50%; text-align: left; }
   .lado-direita .cam { right: 140px; top: 50%; text-align: right; }
   .lado-baixo .cam { left: 50%; bottom: 140px; text-align: center; }
+  .lado-topo .cam { left: 50%; top: 300px; text-align: center; }
 
   .w { display: inline-block; }
   .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
@@ -102,7 +103,9 @@
   const f = FRASES.find((x) => x.id === params.get("id")) || FRASES[0];
 
   const tipo = f.tipo === "overlay" ? "overlay" : "pagina";
-  const lado = f.lado || "esquerda";
+  const vertical = f.formato === "vertical";
+  const W = vertical ? 1080 : 1920, H = vertical ? 1920 : 1080;
+  const lado = f.lado || (vertical ? "topo" : "esquerda");
   const dur = Number(f.duracao) || 3.5;
   const saida = f.saida ?? tipo === "overlay";
 
@@ -114,8 +117,10 @@
   document.title = `${f.id} · Títulos 3D`;
 
   const stage = document.getElementById("stage");
+  stage.style.width = W + "px";
+  stage.style.height = H + "px";
   function fit() {
-    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+    const s = Math.min(innerWidth / W, innerHeight / H);
     stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
   }
   addEventListener("resize", fit); fit();
@@ -145,16 +150,17 @@
 
   function build() {
     // Tamanho do texto: parte do tamanho base e encolhe até caber na área do layout.
-    const base = tipo === "pagina" ? 172 : lado === "baixo" ? 88 : 112;
-    const maxW = tipo === "pagina" || lado === "centro" || lado === "baixo" ? 1640 : 1100;
-    const maxH = tipo === "pagina" ? 760 : 620;
+    const base = tipo === "pagina" ? (vertical ? 150 : 172) : lado === "baixo" ? 88 : 112;
+    const maxW = vertical ? 920 : tipo === "pagina" || lado === "centro" || lado === "baixo" ? 1640 : 1100;
+    const maxH = vertical ? (tipo === "pagina" ? 1300 : 560) : tipo === "pagina" ? 760 : 620;
     cam.style.fontSize = base + "px";
     cam.style.fontSize = base * Math.min(1, maxW / cam.offsetWidth, maxH / cam.offsetHeight) + "px";
 
     const centrado = tipo === "pagina" || lado === "centro";
+    const naBorda = tipo === "overlay" && (lado === "baixo" || lado === "topo");
     gsap.set(cam, {
-      xPercent: centrado || lado === "baixo" ? -50 : 0,
-      yPercent: lado === "baixo" && tipo === "overlay" ? 0 : -50,
+      xPercent: centrado || lado === "baixo" || lado === "topo" ? -50 : 0,
+      yPercent: naBorda ? 0 : -50,
       transformOrigin: lado === "direita" && tipo === "overlay" ? "100% 50%" : lado === "esquerda" && tipo === "overlay" ? "0% 50%" : "50% 50%",
     });
 
@@ -194,7 +200,7 @@
     document.body.addEventListener("click", () => { if (!RENDER) tl.restart(); });
     stage.style.visibility = "visible";
     window.tl = tl;
-    window.renderInfo = { width: 1920, height: 1080, duration: dur, alpha: tipo === "overlay" };
+    window.renderInfo = { width: W, height: H, duration: dur, alpha: tipo === "overlay" };
     window.renderReady = true;
   }
 

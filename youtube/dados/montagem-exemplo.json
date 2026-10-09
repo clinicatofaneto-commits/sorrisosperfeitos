@@ -6,7 +6,7 @@
     "VINHETA": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/vinheta.mp4", "largura": 1920, "altura": 1080, "fps": "29.97", "duracao": 15, "canais": 0 },
     "T01": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/titulos/T01.mp4", "largura": 1920, "altura": 1080, "fps": "29.97", "duracao": 3.5, "canais": 0 },
     "T03": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/titulos/T03.mov", "largura": 1920, "altura": 1080, "fps": "29.97", "duracao": 3.5, "canais": 0, "alfa": true },
-    "R01_LEG": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/legendas/R01_legenda.mov", "largura": 1080, "altura": 1920, "fps": "29.97", "duracao": 6.4, "canais": 0, "alfa": true }
+    "R01_TEMA": { "arquivo": "C:/Users/User/Desktop/GABRIELFILMMAKER/2026/10 - OUTUBRO/TOFA/YTBE/PROJETO/GRAFICOS/reels/R01_TEMA.mov", "largura": 1080, "altura": 1920, "fps": "29.97", "duracao": 3, "canais": 0, "alfa": true }
   },
   "sequencias": [
     {
@@ -35,12 +35,12 @@
       "largura": 1080, "altura": 1920,
       "audio_vazias": 1,
       "v1": [
-        { "id": "r1", "midia": "A001", "entrada": 61.20, "saida": 63.10 },
-        { "id": "r2", "midia": "A001", "entrada": 64.05, "saida": 65.30, "zoom": 1.15 },
-        { "id": "r3", "midia": "A001", "entrada": 70.40, "saida": 73.90, "posicao": [-120, 0] }
+        { "id": "r1", "midia": "A001", "entrada": 61.20, "saida": 63.10, "posicao": [-120, 0] },
+        { "id": "r2", "midia": "A001", "entrada": 64.05, "saida": 65.30, "zoom": 1.12, "posicao": [-120, 0] },
+        { "id": "r3", "midia": "A001", "entrada": 70.40, "saida": 73.90, "zoom": [1.0, 1.12], "posicao": [-120, 0] }
       ],
       "sobre": [
-        { "faixa": 2, "midia": "R01_LEG", "em": 0 }
+        { "faixa": 2, "midia": "R01_TEMA", "em": 0 }
       ]
     }
   ]

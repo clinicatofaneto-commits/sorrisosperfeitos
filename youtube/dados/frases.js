@@ -4,11 +4,14 @@
 //   texto:   "\n" quebra a linha; *palavra* vira o itálico serifado dentro do bloco invertido
 //   duracao: segundos (casar com o tempo da fala)
 //   fundo:   só em "pagina": "branco" (padrão) ou "preto"
-//   lado:    só em "overlay": "esquerda" (padrão), "direita", "centro" ou "baixo"
+//   lado:    só em "overlay": "esquerda" (padrão), "direita", "centro", "baixo" ou "topo"
+//   formato: "vertical" → 1080 × 1920, para abrir cada Reel com o assunto (lado padrão: "topo")
 //   saida:   anima a saída no fim (padrão: sim no overlay, não na página)
 // As frases abaixo são exemplos de estilo; troque pelas falas reais do vídeo.
 window.FRASES = [
   { id: "T01", tipo: "pagina", duracao: 3.5, texto: "Um sorriso bonito\nnão é *cópia*." },
   { id: "T02", tipo: "pagina", fundo: "preto", duracao: 3.5, texto: "Cada rosto pede\num *desenho*." },
   { id: "T03", tipo: "overlay", lado: "esquerda", duracao: 3.5, texto: "Lente de contato\né *planejamento*." },
+  // Abertura de Reel: o assunto do tópico por cima do Thiago nos primeiros segundos.
+  { id: "R01_TEMA", tipo: "overlay", formato: "vertical", duracao: 3, texto: "Lente de contato\nquebra *fácil*?" },
 ];
